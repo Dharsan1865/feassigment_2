@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Step Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('pic4.jpg'); /* Add your background image URL */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 50%;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group label {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .form-navigation button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-navigation button:hover {
+            background-color: #45a049;
+        }
+
+        .form-navigation button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .form-navigation .next {
+            background-color: #007bff;
+        }
+
+        .form-navigation .previous {
+            background-color: #f44336;
+        }
+
+        .step-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>User Registration</h2>
+
+        <form id="multiStepForm">
+            <!-- Step 1: Personal Information -->
+            <div class="step active" id="step1">
+                <h3>Step 1: Personal Information</h3>
+                <img src="back1.webp" class="step-image" alt="Personal Info Image">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                    <div class="error" id="firstNameError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                    <div class="error" id="lastNameError"></div>
+                </div>
+            </div>
+
+            <!-- Step 2: Address -->
+            <div class="step" id="step2">
+                <h3>Step 2: Address</h3>
+                <img src="pic6.jpg" class="step-image" alt="Address Image">
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address" required>
+                    <div class="error" id="addressError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" required>
+                    <div class="error" id="cityError"></div>
+                </div>
+            </div>
+
+            <!-- Step 3: Payment Details -->
+            <div class="step" id="step3">
+                <h3>Step 3: Payment Details</h3>
+                <img src="pic7.webp" class="step-image" alt="Payment Image">
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <input type="text" id="cardNumber" name="cardNumber" required>
+                    <div class="error" id="cardNumberError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="expiryDate">Expiry Date</label>
+                    <input type="month" id="expiryDate" name="expiryDate" required>
+                    <div class="error" id="expiryDateError"></div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="form-navigation">
+                <button type="button" id="previousBtn" class="previous" disabled>Previous</button>
+                <button type="button" id="nextBtn" class="next">Next</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Store form data
+        let formData = {
+            firstName: '',
+            lastName: '',
+            address: '',
+            city: '',
+            cardNumber: '',
+            expiryDate: ''
+        };
+
+        const steps = document.querySelectorAll('.step');
+        const nextBtn = document.getElementById('nextBtn');
+        const previousBtn = document.getElementById('previousBtn');
+        const form = document.getElementById('multiStepForm');
+
+        let currentStep = 0;
+
+        function showStep(stepIndex) {
+            steps.forEach((step, index) => {
+                step.classList.remove('active');
+                if (index === stepIndex) {
+                    step.classList.add('active');
+                }
+            });
+
+            // Enable or disable buttons
+            previousBtn.disabled = stepIndex === 0;
+            nextBtn.textContent = stepIndex === steps.length - 1 ? 'Submit' : 'Next';
+        }
+
+        function validateStep(stepIndex) {
+            const currentStepInputs = steps[stepIndex].querySelectorAll('input');
+            let isValid = true;
+
+            currentStepInputs.forEach(input => {
+                const errorElement = document.getElementById(input.id + 'Error');
+                if (!input.value) {
+                    errorElement.textContent = `${input.name} is required`;
+                    isValid = false;
+                } else {
+                    errorElement.textContent = '';
+                    formData[input.name] = input.value;
+                }
+            });
+
+            return isValid;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (validateStep(currentStep)) {
+                currentStep++;
+                if (currentStep === steps.length) {
+                    // Submit form
+                    alert('Form submitted!');
+                    console.log(formData);
+                    form.reset();
+                    currentStep = 0; // Reset form
+                } else {
+                    showStep(currentStep);
+                }
+            }
+        });
+
+        previousBtn.addEventListener('click', () => {
+            currentStep--;
+            showStep(currentStep);
+        });
+
+        // Initialize the form
+        showStep(currentStep);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Slider</title>
+    <style>
+        /* Basic Styles for Image Slider */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 80%;
+            max-width: 600px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .slider-images {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .slider-images img {
+            width: 100%;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+        }
+
+        .slider-images img.active {
+            border: 5px solid #ff9f00; /* Highlight current image */
+        }
+
+        /* Navigation Buttons */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .prev-btn {
+            left: 10px;
+        }
+
+        .next-btn {
+            right: 10px;
+        }
+
+        .prev-btn:disabled, .next-btn:disabled {
+            background-color: rgba(0, 0, 0, 0.2);
+            cursor: not-allowed;
+        }
+
+        /* Button Hover Effects */
+        .nav-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="slider-container">
+        <div class="slider-images">
+            <!-- Images for the Slider -->
+            <img src="pic7.webp" alt="Image 1">
+            <img src="pic10.webp" alt="Image 2">
+            <img src="pic4.jpg" alt="Image 3">
+            <img src="pic9.webp" alt="Image 4">
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button class="nav-btn prev-btn" onclick="prevImage()">&#10094;</button>
+        <button class="nav-btn next-btn" onclick="nextImage()">&#10095;</button>
+    </div>
+
+    <script>
+        // JavaScript for Image Slider
+        const images = document.querySelectorAll('.slider-images img');
+        const totalImages = images.length;
+        let currentIndex = 0;
+
+        // Function to update the slider display
+        function updateSlider() {
+            // Update the active class on the images
+            images.forEach((img, index) => {
+                img.classList.remove('active');
+                if (index === currentIndex) {
+                    img.classList.add('active');
+                }
+            });
+
+            // Update the slider position
+            document.querySelector('.slider-images').style.transform = `translateX(-${currentIndex * 100}%)`;
+
+            // Enable/Disable buttons based on the current image
+            document.querySelector('.prev-btn').disabled = currentIndex === 0;
+            document.querySelector('.next-btn').disabled = currentIndex === totalImages - 1;
+        }
+
+        // Next image function
+        function nextImage() {
+            if (currentIndex < totalImages - 1) {
+                currentIndex++;
+            } else {
+                currentIndex = 0; // Loop back to the first image
+            }
+            updateSlider();
+        }
+
+        // Previous image function
+        function prevImage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else {
+                currentIndex = totalImages - 1; // Loop back to the last image
+            }
+            updateSlider();
+        }
+
+        // Auto slide every 5 seconds
+        setInterval(nextImage, 5000);
+
+        // Initialize slider on page load
+        updateSlider();
+    </script>
+
+</body>
+</html>
