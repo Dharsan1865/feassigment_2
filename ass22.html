@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Calendar</title>
+    <style>
+        /* Body and general styles */
+        body {  
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('pic3.jpg'); /* Add your background image URL */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .calendar-container {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background for the calendar */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .calendar-body {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-gap: 5px;
+            padding: 10px;
+        }
+
+        .calendar-body div {
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-body div:hover {
+            background-color: #f1f1f1;
+        }
+
+        .calendar-body .highlighted {
+            background-color: #ff9f00;
+            color: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .calendar-body .disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .nav-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 1.1em;
+            border-radius: 5px;
+        }
+
+        .nav-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Add custom images for specific days */
+        .calendar-body .special-day {
+            background-image: url('pic2.jpg'); /* Replace with your own image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Add style for calendar header and images */
+        .calendar-header span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <button class="nav-btn" id="prev-month">&#10094;</button>
+            <span id="month-name"></span>
+            <button class="nav-btn" id="next-month">&#10095;</button>
+        </div>
+        <div class="calendar-body" id="calendar-body"></div>
+    </div>
+
+    <script>
+        const calendarBody = document.getElementById('calendar-body');
+        const monthName = document.getElementById('month-name');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
+
+        let currentDate = new Date();
+        let selectedDate = null;
+
+        // Function to check if it's a leap year
+        function isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        }
+
+        // Function to get the number of days in a given month of a given year
+        function getDaysInMonth(month, year) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+
+        // Function to update the calendar for the current month
+        function updateCalendar() {
+            const month = currentDate.getMonth();
+            const year = currentDate.getFullYear();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = getDaysInMonth(month, year);
+
+            // Update month name
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            monthName.textContent = `${months[month]} ${year}`;
+
+            // Clear the calendar body
+            calendarBody.innerHTML = '';
+
+            // Fill in the empty days before the first of the month
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.classList.add('disabled');
+                calendarBody.appendChild(emptyCell);
+            }
+
+            // Fill in the days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.textContent = day;
+                dayCell.classList.add('day');
+
+                // Highlight selected date
+                if (selectedDate && selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
+                    dayCell.classList.add('highlighted');
+                }
+
+                // Add custom image for specific days (e.g., weekends or holidays)
+                if (day === 5 || day === 15 || day === 25) {  // Example special days
+                    dayCell.classList.add('special-day');
+                }
+
+                // Add click event to highlight the date
+                dayCell.addEventListener('click', function() {
+                    if (selectedDate && selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
+                        selectedDate = null; // Un-highlight if the same date is clicked
+                    } else {
+                        selectedDate = new Date(year, month, day); // Set the selected date
+                    }
+                    updateCalendar(); // Update the calendar display
+                });
+
+                calendarBody.appendChild(dayCell);
+            }
+        }
+
+        // Function to navigate to the previous month
+        function goToPrevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar();
+        }
+
+        // Function to navigate to the next month
+        function goToNextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar();
+        }
+
+        // Initialize calendar
+        updateCalendar();
+
+        // Attach event listeners for navigation buttons
+        prevMonthBtn.addEventListener('click', goToPrevMonth);
+        nextMonthBtn.addEventListener('click', goToNextMonth);
+    </script>
+
+</body>
+</html>

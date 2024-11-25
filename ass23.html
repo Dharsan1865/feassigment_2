@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Video Player</title>
+    <style>
+        /* Background and overall styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('soloback.jpg'); /* Add your background image URL */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+        }
+
+        /* Video container */
+        .video-container {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+            background-image: url('pic3.jpg'); /* Thumbnail image before the video starts */
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        /* Custom video controls container */
+        .video-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* Play/Pause button styling */
+        .play-pause-btn {
+            background: url('playb.jpg') no-repeat center;
+            background-size: contain;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .play-pause-btn.pause {
+            background: url('pic4.jpg') no-repeat center;
+            background-size: contain;
+        }
+
+        /* Volume and progress bar styling */
+        .progress-container {
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: #ccc;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .progress {
+            height: 100%;
+            background: #ff9f00;
+            width: 0%;
+        }
+
+        .volume-slider {
+            width: 100px;
+            cursor: pointer;
+        }
+
+        /* Fullscreen button */
+        .fullscreen-btn {
+            background: url('full.jpg') no-repeat center;
+            background-size: contain;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .mute-btn {
+            background: url('mute.jpg') no-repeat center;
+            background-size: contain;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="video-container" id="video-container">
+        <video id="video" src="solo.mp4" preload="auto" poster="https://www.example.com/video-thumbnail.jpg"></video>
+
+        <div class="video-controls">
+            <button class="play-pause-btn" id="playPauseBtn"></button>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" onclick="seekVideo(event)">
+                    <div class="progress" id="progress"></div>
+                </div>
+            </div>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+            <button class="mute-btn" id="muteBtn"></button>
+            <button class="fullscreen-btn" id="fullscreenBtn"></button>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progress = document.getElementById('progress');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const muteBtn = document.getElementById('muteBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const videoContainer = document.getElementById('video-container');
+
+        // Play/Pause functionality
+        playPauseBtn.addEventListener('click', () => {
+            if (video.paused) {
+                video.play();
+                playPauseBtn.classList.add('pause');
+            } else {
+                video.pause();
+                playPauseBtn.classList.remove('pause');
+            }
+        });
+
+        // Update progress bar as the video plays
+        video.addEventListener('timeupdate', () => {
+            const progressPercent = (video.currentTime / video.duration) * 100;
+            progress.style.width = progressPercent + '%';
+        });
+
+        // Seek video when the user clicks on the progress bar
+        function seekVideo(event) {
+            const rect = progressBar.getBoundingClientRect();
+            const offsetX = event.clientX - rect.left;
+            const duration = video.duration;
+            const newTime = (offsetX / progressBar.offsetWidth) * duration;
+            video.currentTime = newTime;
+        }
+
+        // Volume control
+        volumeSlider.addEventListener('input', () => {
+            video.volume = volumeSlider.value;
+        });
+
+        // Mute/Unmute functionality
+        muteBtn.addEventListener('click', () => {
+            video.muted = !video.muted;
+            if (video.muted) {
+                muteBtn.style.backgroundImage = "url('https://www.example.com/unmute-icon.png')";
+            } else {
+                muteBtn.style.backgroundImage = "url('https://www.example.com/mute-icon.png')";
+            }
+        });
+
+        // Fullscreen toggle functionality
+        fullscreenBtn.addEventListener('click', () => {
+            if (videoContainer.requestFullscreen) {
+                videoContainer.requestFullscreen();
+            } else if (videoContainer.mozRequestFullScreen) { // Firefox
+                videoContainer.mozRequestFullScreen();
+            } else if (videoContainer.webkitRequestFullscreen) { // Chrome and Safari
+                videoContainer.webkitRequestFullscreen();
+            }
+        });
+
+        // Handle video end event
+        video.addEventListener('ended', () => {
+            playPauseBtn.classList.remove('pause');
+            video.currentTime = 0;
+            progress.style.width = '0%';
+        });
+    </script>
+
+</body>
+</html>
